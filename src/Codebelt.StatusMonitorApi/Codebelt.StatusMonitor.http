@@ -1,0 +1,6 @@
+@Codebelt.StatusMonitor_HostAddress = http://localhost:5094
+
+GET {{Codebelt.StatusMonitor_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
