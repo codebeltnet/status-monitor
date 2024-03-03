@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Savvyio.Core" Version="2.1.0-preview" />
+    <PackageReference Include="Savvyio.Core" Version="2.1.0-preview.14" />
   </ItemGroup>
 
 

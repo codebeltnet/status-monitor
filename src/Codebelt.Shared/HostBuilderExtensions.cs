@@ -13,16 +13,10 @@ namespace Codebelt.Shared
         {
             Validator.ThrowIfNull(hostBuilder);
             Validator.ThrowIfNull(configureDelegate);
-            
             hostBuilder.ConfigureAppConfiguration((context, builder) =>
             {
                 configureDelegate(context.HostingEnvironment, builder.Sources);
-                if (context.HostingEnvironment.IsDevelopment())
-                {
-                    //builder.Sources.Remove(source => source is EnvironmentVariablesConfigurationSource);
-                }
             });
-            
             return hostBuilder;
         }
 
