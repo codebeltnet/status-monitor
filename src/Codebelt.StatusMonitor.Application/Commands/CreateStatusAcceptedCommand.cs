@@ -1,11 +1,11 @@
 ﻿using System;
-using Savvyio.Commands;
+using Savvyio;
 
 namespace Codebelt.StatusMonitor.Application.Commands
 {
-    public record AcceptedOperationCommand : Command
+    public sealed record CreateStatusAcceptedCommand : TenantCommand
     {
-        public AcceptedOperationCommand(TenantId tenantId, CorrelationId correlationId, Scope scope, Endpoint endpoint, Message message)
+        public CreateStatusAcceptedCommand(TenantId tenantId, CorrelationId correlationId, Scope scope, Endpoint endpoint, Message message)
         {
             TenantId = tenantId;
             CorrelationId = correlationId;
@@ -14,9 +14,8 @@ namespace Codebelt.StatusMonitor.Application.Commands
             Scope = scope;
             Status = new Status(StatusMonitor.Status.Accepted);
             AcceptedAt = DateTime.UtcNow;
+            this.SetCorrelationId(CorrelationId);
         }
-
-        public Guid TenantId { get; }
 
         public string CorrelationId { get; }
 

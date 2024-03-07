@@ -4,6 +4,7 @@ using Asp.Versioning;
 using Codebelt.Bootstrapper.Web;
 using Codebelt.Shared;
 using Codebelt.StatusMonitor.InMemory;
+using Codebelt.StatusMonitor.RestApi.Controllers.V1;
 using Cuemon.Diagnostics;
 using Cuemon.Extensions.Asp.Versioning;
 using Cuemon.Extensions.AspNetCore.Diagnostics;
@@ -49,8 +50,8 @@ namespace Codebelt.StatusMonitor.RestApi
                     o.Filters.AddServerTiming();
                     o.Filters.AddFaultDescriptor();
                 })
+                .AddApplicationPart(typeof(StatusController).Assembly)
                 .AddJsonFormatters()
-                //.AddJsonOptions(o => o.JsonSerializerOptions.Converters.AddStringEnumConverter()) // Required for Swagger UI to render Enum probably
                 .AddFaultDescriptorOptions(o =>
                 {
                     o.HttpFaultResolvers.AddHttpFaultResolver<SecurityException>(StatusCodes.Status401Unauthorized);
@@ -62,7 +63,7 @@ namespace Codebelt.StatusMonitor.RestApi
 
             services.AddRestfulApiVersioning(o =>
             {
-                o.Conventions.Controller<Controllers.V1.StatusController>().HasApiVersion(new ApiVersion(1, 0));
+                o.Conventions.Controller<StatusController>().HasApiVersion(new ApiVersion(1, 0));
             });
 
             services.AddRestfulSwagger(o =>
@@ -90,9 +91,13 @@ namespace Codebelt.StatusMonitor.RestApi
                     .AddMediator<Mediator>();
             });
 
-            services.Add<InMemoryTenantDataStore>(o => o.Lifetime = ServiceLifetime.Singleton);
-            services.Add<InMemoryStatusMonitorDataStore>(o => o.Lifetime = ServiceLifetime.Singleton);
 
+            if (Environment.IsLocalDevelopment())
+            {
+                services.Add<InMemoryTenantDataStore>(o => o.Lifetime = ServiceLifetime.Singleton);
+                services.Add<InMemoryStatusMonitorDataStore>(o => o.Lifetime = ServiceLifetime.Singleton);
+            }
+            
             services.PostConfigureAllOf<IExceptionDescriptorOptions>(o => o.SensitivityDetails = Environment.IsNonProduction() ? FaultSensitivityDetails.All : FaultSensitivityDetails.None);
         }
 

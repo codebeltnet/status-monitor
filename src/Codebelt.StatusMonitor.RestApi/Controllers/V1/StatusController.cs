@@ -39,21 +39,21 @@ namespace Codebelt.StatusMonitor.RestApi.Controllers.V1
             switch (status)
             {
                 case OperationStatus.Running:
-                    command = new RunningOperationCommand(
+                    command = new UpdateStatusToRunningCommand(
                         tenantQuery.TenantId, 
                         correlationId, 
                         string.IsNullOrWhiteSpace(input.Message) ? null : new Message(input.Message),
                         input.RunningAt.HasValue ? new CoordinatedUniversalTime(input.RunningAt.Value) : null);
                     break;
                 case OperationStatus.Succeeded:
-                    command = new SucceededOperationCommand(
+                    command = new UpdateStatusToSucceededCommand(
                         tenantQuery.TenantId, 
                         correlationId, 
                         string.IsNullOrWhiteSpace(input.EndpointRouteValue) ? null : new EndpointRouteValue(input.EndpointRouteValue),
                         input.SucceededAt.HasValue ? new CoordinatedUniversalTime(input.SucceededAt.Value) : null);
                     break;
                 case OperationStatus.Failed:
-                    command = new FailedOperationCommand(
+                    command = new UpdateStatusToFailedCommand(
                         tenantQuery.TenantId,
                         correlationId,
                         new FailedReason(input.FailedReason),
@@ -69,20 +69,20 @@ namespace Codebelt.StatusMonitor.RestApi.Controllers.V1
         public async Task<ActionResult<StatusViewModel>> Delete([FromRoute] string correlationId)
         {
             var tenantQuery = await GetTenantAsync().ConfigureAwait(false);
-            var command = new DeleteOperationCommand(tenantQuery.TenantId, correlationId);
+            var command = new DeleteStatusCommand(tenantQuery.TenantId, correlationId);
             await _mediator.CommitAsync(command).ConfigureAwait(false);
             return NoContent();
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<StatusViewModel>> Post([FromBody] CreateStatusInputModel input)
         {
             var tenantQuery = await GetTenantAsync().ConfigureAwait(false);
-            var command = new AcceptedOperationCommand(tenantQuery.TenantId, input.CorrelationId, new Scope(input.Scope), new Endpoint(input.Endpoint), new Message(input.Message));
+            var command = new CreateStatusAcceptedCommand(tenantQuery.TenantId, input.CorrelationId, new Scope(input.Scope), new Endpoint(input.Endpoint), new Message(input.Message));
             await _mediator.CommitAsync(command).ConfigureAwait(false);
-            return Ok(new StatusViewModel(command.CorrelationId, command.Message, command.Endpoint, command.Scope, command.Status)
+            return Created((string)null, new StatusViewModel(command.CorrelationId, command.Message, command.Endpoint, command.Scope, command.Status)
             {
                 AcceptedAt = command.AcceptedAt
             });

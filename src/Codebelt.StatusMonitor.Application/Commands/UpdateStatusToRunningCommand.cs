@@ -1,11 +1,10 @@
 ﻿using System;
-using Savvyio.Commands;
 
 namespace Codebelt.StatusMonitor.Application.Commands
 {
-    public record RunningOperationCommand : Command
+    public sealed record UpdateStatusToRunningCommand : TenantCommand
     {
-        public RunningOperationCommand(TenantId tenantId, CorrelationId correlationId, Message? message = null, CoordinatedUniversalTime? runningAt = null)
+        public UpdateStatusToRunningCommand(TenantId tenantId, CorrelationId correlationId, Message? message = null, CoordinatedUniversalTime? runningAt = null)
         {
             TenantId = tenantId;
             CorrelationId = correlationId;
@@ -13,8 +12,6 @@ namespace Codebelt.StatusMonitor.Application.Commands
             RunningAt = runningAt ?? DateTime.UtcNow;
             if (message != null) { Message = message; }
         }
-
-        public Guid TenantId { get; }
 
         public string CorrelationId { get; }
 

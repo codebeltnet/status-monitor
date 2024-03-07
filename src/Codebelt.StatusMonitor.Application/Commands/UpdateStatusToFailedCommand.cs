@@ -1,11 +1,10 @@
 ﻿using System;
-using Savvyio.Commands;
 
 namespace Codebelt.StatusMonitor.Application.Commands
 {
-    public record FailedOperationCommand : Command
+    public sealed record UpdateStatusToFailedCommand : TenantCommand
     {
-        public FailedOperationCommand(TenantId tenantId, CorrelationId correlationId, FailedReason failedReason, CoordinatedUniversalTime? failedAt = null)
+        public UpdateStatusToFailedCommand(TenantId tenantId, CorrelationId correlationId, FailedReason failedReason, CoordinatedUniversalTime? failedAt = null)
         {
             TenantId = tenantId;
             CorrelationId = correlationId;
@@ -13,8 +12,6 @@ namespace Codebelt.StatusMonitor.Application.Commands
             FailedReason = failedReason;
             FailedAt = failedAt ?? DateTime.UtcNow;
         }
-
-        public Guid TenantId { get; }
 
         public string CorrelationId { get; }
 

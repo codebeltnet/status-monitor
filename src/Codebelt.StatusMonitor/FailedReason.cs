@@ -10,6 +10,11 @@ namespace Codebelt.StatusMonitor
             return new FailedReason(value);
         }
 
+        public static implicit operator FailedReason (Exception value)
+        {
+            return new FailedReason(value);
+        }
+
         public FailedReason(string value) : base(value)
         {
         }

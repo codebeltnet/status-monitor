@@ -2,50 +2,69 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Codebelt.StatusMonitor.Application.Commands;
+using Codebelt.StatusMonitor.Application.Events;
+using Savvyio;
 using Savvyio.Commands;
+using Savvyio.Extensions;
 using Savvyio.Handlers;
 
 namespace Codebelt.StatusMonitor.Application
 {
     public class StatusCommandHandler : CommandHandler
     {
+        private readonly IMediator _mediator;
         private readonly IStatusMonitorDataStore _statusMonitorDataStore;
 
-        public StatusCommandHandler(IStatusMonitorDataStore statusMonitorDataStore)
+        public StatusCommandHandler(IMediator mediator,  IStatusMonitorDataStore statusMonitorDataStore)
         {
+            _mediator = mediator;
             _statusMonitorDataStore = statusMonitorDataStore;
         }
 
         protected override void RegisterDelegates(IFireForgetRegistry<ICommand> handlers)
         {
-            handlers.RegisterAsync<AcceptedOperationCommand>(command =>
-                _statusMonitorDataStore.CreateAsync(new Operation(command.TenantId, command.CorrelationId)
-                    .Accepted(command.Scope, command.Endpoint, command.Message, command.AcceptedAt)));
-            handlers.RegisterAsync<DeleteOperationCommand>(command =>
-                _statusMonitorDataStore.DeleteAsync(new Operation(command.TenantId, command.CorrelationId)));
-            handlers.RegisterAsync<FailedOperationCommand>(async command =>
+            handlers.RegisterAsync<CreateStatusAcceptedCommand>(async command =>
+            {
+                await _statusMonitorDataStore.CreateAsync(new Operation(command.TenantId, command.CorrelationId)
+                    .Accepted(command.Scope, command.Endpoint, command.Message, command.AcceptedAt)).ConfigureAwait(false);
+                await _mediator.PublishAsync(new StatusAcceptedEvent(command)
+                    .SetCorrelationId(command.CorrelationId)).ConfigureAwait(false);
+            });
+            handlers.RegisterAsync<DeleteStatusCommand>(async command =>
+            {
+                await _statusMonitorDataStore.DeleteAsync(new Operation(command.TenantId, command.CorrelationId)).ConfigureAwait(false);
+                await _mediator.PublishAsync(new StatusDeletedEvent(command)
+                    .SetCorrelationId(command.CorrelationId)).ConfigureAwait(false);
+            });
+            handlers.RegisterAsync<UpdateStatusToFailedCommand>(async command =>
             {
                 var operation = await GetOperationAsync(command.CorrelationId, command.TenantId).ConfigureAwait(false);
                 if (operation != null)
                 {
                     await _statusMonitorDataStore.UpdateAsync(operation.Failed(command.FailedReason, command.FailedAt)).ConfigureAwait(false);
+                    await _mediator.PublishAsync(new StatusFailedEvent(command)
+                        .SetCorrelationId(command.CorrelationId)).ConfigureAwait(false);
                 }
             });
-            handlers.RegisterAsync<RunningOperationCommand>(async command =>
+            handlers.RegisterAsync<UpdateStatusToRunningCommand>(async command =>
             {
                 var operation = await GetOperationAsync(command.CorrelationId, command.TenantId).ConfigureAwait(false);
                 if (operation != null)
                 {
                     await _statusMonitorDataStore.UpdateAsync(operation.Running(command.Message, command.RunningAt)).ConfigureAwait(false);
+                    await _mediator.PublishAsync(new StatusRunningEvent(command)
+                        .SetCorrelationId(command.CorrelationId)).ConfigureAwait(false);
                 }
                 
             });
-            handlers.RegisterAsync<SucceededOperationCommand>(async command =>
+            handlers.RegisterAsync<UpdateStatusToSucceededCommand>(async command =>
             {
                 var operation = await GetOperationAsync(command.CorrelationId, command.TenantId).ConfigureAwait(false);
                 if (operation != null)
                 {
                     await _statusMonitorDataStore.UpdateAsync(operation.Succeeded(command.EndpointRouteValue, command.SucceededAt)).ConfigureAwait(false);
+                    await _mediator.PublishAsync(new StatusSucceededEvent(command)
+                        .SetCorrelationId(command.CorrelationId)).ConfigureAwait(false);
                 }
             });
         }

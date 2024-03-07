@@ -9,7 +9,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Savvyio.Core" Version="2.1.0-preview.14" />
+    <PackageReference Include="Cuemon.Extensions.Xunit.Hosting" Version="8.2.0" />
+    <PackageReference Include="Cuemon.Extensions.Xunit.Hosting.AspNetCore" Version="8.2.0" />
+    <PackageReference Include="Savvyio.Core" Version="2.1.0" />
   </ItemGroup>
 
 

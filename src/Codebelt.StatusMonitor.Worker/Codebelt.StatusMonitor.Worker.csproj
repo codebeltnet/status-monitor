@@ -9,13 +9,13 @@
 
   <ItemGroup>
     <PackageReference Include="Codebelt.Bootstrapper.Worker" Version="1.3.0" />
-    <PackageReference Include="Cuemon.Extensions.Hosting" Version="8.1.0" />
+    <PackageReference Include="Cuemon.Extensions.Hosting" Version="8.2.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
-    <PackageReference Include="Savvyio.Extensions.Dispatchers" Version="2.1.0-preview.14" />
-    <PackageReference Include="Savvyio.Extensions.SimpleQueueService" Version="2.1.0-preview.14" />
-    <PackageReference Include="Savvyio.Extensions.DependencyInjection.SimpleQueueService" Version="2.1.0-preview.14" />
-    <PackageReference Include="Savvyio.Extensions.Text.Json" Version="2.1.0-preview.14" />
+    <PackageReference Include="Savvyio.Extensions.Dispatchers" Version="2.1.0" />
+    <PackageReference Include="Savvyio.Extensions.SimpleQueueService" Version="2.1.0" />
+    <PackageReference Include="Savvyio.Extensions.DependencyInjection.SimpleQueueService" Version="2.1.0" />
+    <PackageReference Include="Savvyio.Extensions.Text.Json" Version="2.1.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,6 @@
 services:
   localstack:
-    image: localstack/localstack:3.1.0
+    image: localstack/localstack:3.2.0
     environment:
       - IMAGE_NAME=localstack/localstack:3.1.0
       - SERVICES=sns,sqs
@@ -11,7 +11,7 @@ services:
       - '4566:4566'
       - '4570-4597:4570-4597'
   awscli:
-      image: amazon/aws-cli:2.15.18
+      image: amazon/aws-cli:2.15.26
       depends_on:
         - localstack
       environment:
@@ -25,4 +25,7 @@ services:
         "
             sleep 5s
             aws sqs create-queue --queue-name generic-status-monitor.fifo --attributes FifoQueue=true,ContentBasedDeduplication=false
+            aws sqs create-queue --queue-name generic-status-monitor-events.fifo --attributes FifoQueue=true,ContentBasedDeduplication=false
+            aws sns create-topic --name generic-status-monitor-topic.fifo --attributes FifoTopic=true,ContentBasedDeduplication=false
+            aws sns subscribe --topic-arn arn:aws:sns:eu-west-1:000000000000:generic-status-monitor-topic.fifo --protocol sqs --notification-endpoint arn:aws:sqs:eu-west-1:000000000000:generic-status-monitor-events.fifo --attributes RawMessageDelivery=true
         "
