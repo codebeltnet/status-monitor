@@ -7,6 +7,7 @@ using Codebelt.StatusMonitor.Application.Inputs;
 using Codebelt.StatusMonitor.Application.Views;
 using Cuemon.Extensions.IO;
 using Cuemon.Extensions.Text.Json.Formatters;
+using Cuemon.Extensions.Xunit;
 using Cuemon.Extensions.Xunit.Hosting;
 using Cuemon.Extensions.Xunit.Hosting.AspNetCore;
 using Cuemon.Net.Http;
@@ -47,6 +48,8 @@ namespace Codebelt.StatusMonitor.RestApi.V1
             var response = await _client.PostAsync("/status", new StringContent(JsonFormatter.SerializeObject(inputModel).ToEncodedString(), Encoding.UTF8, "application/json"));
             var body = JsonFormatter.DeserializeObject<StatusViewModel>(await response.Content.ReadAsStreamAsync());
 
+            TestOutput.WriteLine(await response.Content.ReadAsStringAsync());
+
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
             Assert.Equal(inputModel.CorrelationId, body.CorrelationId);
             Assert.Equal(inputModel.Message, body.Message);
@@ -64,6 +67,8 @@ namespace Codebelt.StatusMonitor.RestApi.V1
         {
             var response = await _client.GetAsync($"/status/{CorrelationId}");
             var body = JsonFormatter.DeserializeObject<StatusViewModel>(await response.Content.ReadAsStreamAsync());
+
+            TestOutput.WriteLine(await response.Content.ReadAsStringAsync());
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Equal(CorrelationId, body.CorrelationId);
@@ -88,6 +93,8 @@ namespace Codebelt.StatusMonitor.RestApi.V1
             var response = await _client.PatchAsync($"/status/{CorrelationId}?status={OperationStatus.Running.ToString().ToLowerInvariant()}", new StringContent(JsonFormatter.SerializeObject(updateModel).ToEncodedString(), Encoding.UTF8, "application/json"));
             var body = JsonFormatter.DeserializeObject<StatusViewModel>(await response.Content.ReadAsStreamAsync());
 
+            TestOutput.WriteLine(await response.Content.ReadAsStringAsync());
+
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Equal(CorrelationId, body.CorrelationId);
             Assert.Equal(updateModel.Message, body.Message);
@@ -107,6 +114,8 @@ namespace Codebelt.StatusMonitor.RestApi.V1
             };
             var response = await _client.PatchAsync($"/status/{CorrelationId}?status={OperationStatus.Succeeded.ToString().ToLowerInvariant()}", new StringContent(JsonFormatter.SerializeObject(updateModel).ToEncodedString(), Encoding.UTF8, "application/json"));
             var body = JsonFormatter.DeserializeObject<StatusViewModel>(await response.Content.ReadAsStreamAsync());
+
+            TestOutput.WriteLine(await response.Content.ReadAsStringAsync());
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Equal(CorrelationId, body.CorrelationId);

@@ -1,4 +1,6 @@
-﻿namespace Codebelt.StatusMonitor.Application.Commands
+﻿using Savvyio;
+
+namespace Codebelt.StatusMonitor.Application.Commands
 {
     public sealed record DeleteStatusCommand : TenantCommand
     {

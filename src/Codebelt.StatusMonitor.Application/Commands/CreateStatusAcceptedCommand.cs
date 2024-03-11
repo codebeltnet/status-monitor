@@ -1,5 +1,4 @@
 ﻿using System;
-using Savvyio;
 
 namespace Codebelt.StatusMonitor.Application.Commands
 {
@@ -14,7 +13,6 @@ namespace Codebelt.StatusMonitor.Application.Commands
             Scope = scope;
             Status = new Status(StatusMonitor.Status.Accepted);
             AcceptedAt = DateTime.UtcNow;
-            this.SetCorrelationId(CorrelationId);
         }
 
         public string CorrelationId { get; }
