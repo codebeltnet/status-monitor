@@ -3,9 +3,9 @@ using Cuemon.Threading;
 
 namespace Codebelt.Shared
 {
-    public class AwaiterOptions : AsyncOptions
+    public class ActionOptions : AsyncOptions
     {
-        public AwaiterOptions()
+        public ActionOptions()
         {
             Timeout = TimeSpan.FromSeconds(5);
             Delay = TimeSpan.FromMilliseconds(100);

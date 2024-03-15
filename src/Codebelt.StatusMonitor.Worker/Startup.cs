@@ -43,7 +43,7 @@ namespace Codebelt.StatusMonitor.Worker
             {
                 o.Credentials = new BasicAWSCredentials(Configuration["AWS:IAM:AccessKey"], Configuration["AWS:IAM:SecretKey"]);
                 o.Endpoint = RegionEndpoint.EUWest1;
-                o.SourceQueue = new Uri($"{Configuration["AWS:SourceQueue"]}/{Configuration["AWS:CallerIdentity"]}/generic-status-monitor.fifo");
+                o.SourceQueue = new Uri($"{Configuration["AWS:SourceQueue"]}/{Configuration["AWS:CallerIdentity"]}/status-monitor.fifo");
                 if (Environment.IsLocalDevelopment())
                 {
                     o.ReceiveContext.PollingTimeout = TimeSpan.FromSeconds(1);
@@ -60,7 +60,7 @@ namespace Codebelt.StatusMonitor.Worker
             {
                 o.Credentials = new BasicAWSCredentials(Configuration["AWS:IAM:AccessKey"], Configuration["AWS:IAM:SecretKey"]);
                 o.Endpoint = RegionEndpoint.EUWest1;
-                o.SourceQueue = new Uri($"{Configuration["AWS:SourceQueue"]}/{Configuration["AWS:CallerIdentity"]}/generic-status-monitor-events.fifo");
+                o.SourceQueue = new Uri($"{Configuration["AWS:SourceQueue"]}/{Configuration["AWS:CallerIdentity"]}/status-monitor-events.fifo");
                 if (Environment.IsLocalDevelopment())
                 {
                     o.ReceiveContext.PollingTimeout = TimeSpan.FromSeconds(1);

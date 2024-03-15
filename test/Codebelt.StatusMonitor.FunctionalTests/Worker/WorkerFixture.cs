@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Cuemon;
 using Cuemon.Extensions.Hosting;
 using Cuemon.Extensions.Xunit.Hosting;
@@ -11,15 +7,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.EnvironmentVariables;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Xunit.Abstractions;
 
 namespace Codebelt.StatusMonitor.Worker
 {
     public class WorkerFixture : Disposable
     {
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromMinutes(1));
-        private IGenericHostTest _instance;
 
         public WorkerFixture()
         {

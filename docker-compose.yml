@@ -2,7 +2,7 @@ services:
   localstack:
     image: localstack/localstack:3.2.0
     environment:
-      - IMAGE_NAME=localstack/localstack:3.1.0
+      - IMAGE_NAME=localstack/localstack:3.2.0
       - SERVICES=sns,sqs
       - DEBUG=0
       - DISABLE_CORS_CHECKS=1
@@ -24,8 +24,8 @@ services:
       command: >
         "
             sleep 5s
-            aws sqs create-queue --queue-name generic-status-monitor.fifo --attributes FifoQueue=true,ContentBasedDeduplication=false
-            aws sqs create-queue --queue-name generic-status-monitor-events.fifo --attributes FifoQueue=true,ContentBasedDeduplication=false
-            aws sns create-topic --name generic-status-monitor-topic.fifo --attributes FifoTopic=true,ContentBasedDeduplication=false
-            aws sns subscribe --topic-arn arn:aws:sns:eu-west-1:000000000000:generic-status-monitor-topic.fifo --protocol sqs --notification-endpoint arn:aws:sqs:eu-west-1:000000000000:generic-status-monitor-events.fifo --attributes RawMessageDelivery=true
+            aws sqs create-queue --queue-name status-monitor.fifo --attributes FifoQueue=true,ContentBasedDeduplication=false
+            aws sqs create-queue --queue-name status-monitor-events.fifo --attributes FifoQueue=true,ContentBasedDeduplication=false
+            aws sns create-topic --name status-monitor-topic.fifo --attributes FifoTopic=true,ContentBasedDeduplication=false
+            aws sns subscribe --topic-arn arn:aws:sns:eu-west-1:000000000000:status-monitor-topic.fifo --protocol sqs --notification-endpoint arn:aws:sqs:eu-west-1:000000000000:status-monitor-events.fifo --attributes RawMessageDelivery=true
         "

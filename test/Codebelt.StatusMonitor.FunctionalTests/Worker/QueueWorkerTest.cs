@@ -6,13 +6,13 @@ using Codebelt.StatusMonitor.Application;
 using Codebelt.StatusMonitor.Application.Commands;
 using Codebelt.StatusMonitor.Application.Events;
 using Codebelt.StatusMonitor.Application.Queries;
+using Cuemon;
 using Cuemon.Extensions;
 using Cuemon.Extensions.Collections.Generic;
 using Cuemon.Extensions.IO;
 using Cuemon.Extensions.Text.Json.Formatters;
 using Cuemon.Extensions.Xunit;
 using Cuemon.Extensions.Xunit.Hosting;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.DependencyInjection;
 using Savvyio;
 using Savvyio.Commands;
@@ -30,7 +30,7 @@ namespace Codebelt.StatusMonitor.Worker
     public class QueueWorkerTest : Test, IClassFixture<WorkerFixture>
     {
         private const string TenantId = "13dd96d361a4455f8b1a1ad9b3f43dce";
-        private readonly byte[] TenantSecret = "705424692fda4b86b8726d64b22cb1bf".ToByteArray();
+        private readonly byte[] _tenantSecret = "705424692fda4b86b8726d64b22cb1bf".ToByteArray();
         private readonly IGenericHostTest _host;
         private readonly string _correlationId;
         private readonly CancellationToken _cancellationToken;
@@ -55,14 +55,14 @@ namespace Codebelt.StatusMonitor.Worker
             var mediator = _host.ServiceProvider.GetRequiredService<IMediator>();
 
             var command = new CreateStatusAcceptedCommand(TenantId, _correlationId, OperationScope.Create.ToString(), "https://some.microservice.io/", "Creating a new monitor.");
-            var message = command.ToMessage($"urn:status:id:{command.CorrelationId}".ToUri(), "status.accepted").Sign(marshaller, o => o.SignatureSecret = TenantSecret);
+            var message = command.ToMessage($"urn:status:id:{command.CorrelationId}".ToUri(), "status.accepted").Sign(marshaller, o => o.SignatureSecret = _tenantSecret);
             await queue.SendAsync(message.Yield(), o => o.CancellationToken = _cancellationToken);
 
             TestOutput.WriteLine(JsonFormatter.SerializeObject(message).ToEncodedString());
-
-            await Awaiter.RunAsync(async () =>
+            
+            var result = await Awaiter.RunUntilSucceededOrTimeoutAsync(async () =>
             {
-                var result = AsyncRunProgress.Running;
+                var signaled = false;
                 await bus.SubscribeAsync((@event, _) =>
                 {
                     if (@event.Data is StatusAcceptedEvent created)
@@ -73,12 +73,14 @@ namespace Codebelt.StatusMonitor.Worker
                         Assert.Equal(command.Scope, created.Scope);
                         Assert.Equal(Status.Accepted, created.Status);
                         Assert.InRange(created.AcceptedAt, DateTime.UtcNow.AddMinutes(-1), DateTime.UtcNow.AddMinutes(1));
-                        result = AsyncRunProgress.Succeeded;
+                        signaled = true;
                     }
                     return Task.CompletedTask;
-                });
-                return result;
-            });
+                }, o => o.CancellationToken = _cancellationToken);
+                return signaled ? new SuccessfulValue() : new UnsuccessfulValue();
+            }, o => o.CancellationToken = _cancellationToken);
+
+            Assert.True(result.Succeeded, "Expected to be successful.");
 
             var status = await mediator.QueryAsync(new GetStatusQuery(TenantId, _correlationId), o => o.CancellationToken = _cancellationToken);
 
@@ -102,14 +104,14 @@ namespace Codebelt.StatusMonitor.Worker
             var mediator = _host.ServiceProvider.GetRequiredService<IMediator>();
 
             var command = new UpdateStatusToRunningCommand(TenantId, _correlationId, "Running like the wind ...");
-            var message = command.ToMessage($"urn:status:id:{command.CorrelationId}".ToUri(), "status.running").Sign(marshaller, o => o.SignatureSecret = TenantSecret);
+            var message = command.ToMessage($"urn:status:id:{command.CorrelationId}".ToUri(), "status.running").Sign(marshaller, o => o.SignatureSecret = _tenantSecret);
             await queue.SendAsync(message.Yield(), o => o.CancellationToken = _cancellationToken);
 
             TestOutput.WriteLine(JsonFormatter.SerializeObject(message).ToEncodedString());
 
-            await Awaiter.RunAsync(async () =>
+            var result = await Awaiter.RunUntilSucceededOrTimeoutAsync(async () =>
             {
-                var result = AsyncRunProgress.Running;
+                var signaled = false;
                 await bus.SubscribeAsync((@event, _) =>
                 {
                     if (@event.Data is StatusRunningEvent running)
@@ -118,12 +120,14 @@ namespace Codebelt.StatusMonitor.Worker
                         Assert.Equal(command.Message, running.Message);
                         Assert.Equal(OperationStatus.Running.ToString(), running.Status);
                         Assert.InRange(running.RunningAt, DateTime.UtcNow.AddMinutes(-1), DateTime.UtcNow.AddMinutes(1));
-                        result = AsyncRunProgress.Succeeded;
+                        signaled = true;
                     }
                     return Task.CompletedTask;
-                });
-                return result;
-            });
+                }, o => o.CancellationToken = _cancellationToken);
+                return signaled ? new SuccessfulValue() : new UnsuccessfulValue();
+            }, o => o.CancellationToken = _cancellationToken);
+
+            Assert.True(result.Succeeded, "Expected to be successful.");
 
             var status = await mediator.QueryAsync(new GetStatusQuery(TenantId, _correlationId), o => o.CancellationToken = _cancellationToken);
 
@@ -145,14 +149,14 @@ namespace Codebelt.StatusMonitor.Worker
             var mediator = _host.ServiceProvider.GetRequiredService<IMediator>();
 
             var command = new UpdateStatusToSucceededCommand(TenantId, _correlationId, "f92f29f3528a456b9c50ba4f05bb7b30");
-            var message = command.ToMessage($"urn:status:id:{command.CorrelationId}".ToUri(), "status.succeeded").Sign(marshaller, o => o.SignatureSecret = TenantSecret);
+            var message = command.ToMessage($"urn:status:id:{command.CorrelationId}".ToUri(), "status.succeeded").Sign(marshaller, o => o.SignatureSecret = _tenantSecret);
             await queue.SendAsync(message.Yield(), o => o.CancellationToken = _cancellationToken);
 
             TestOutput.WriteLine(JsonFormatter.SerializeObject(message).ToEncodedString());
 
-            await Awaiter.RunAsync(async () =>
+            var result = await Awaiter.RunUntilSucceededOrTimeoutAsync(async () =>
             {
-                var result = AsyncRunProgress.Running;
+                var signaled = false;
                 await bus.SubscribeAsync((@event, _) =>
                 {
                     if (@event.Data is StatusSucceededEvent succeeded)
@@ -161,12 +165,14 @@ namespace Codebelt.StatusMonitor.Worker
                         Assert.Equal(command.EndpointRouteValue, succeeded.EndpointRouteValue);
                         Assert.Equal(OperationStatus.Succeeded.ToString(), succeeded.Status);
                         Assert.InRange(succeeded.SucceededAt, DateTime.UtcNow.AddMinutes(-1), DateTime.UtcNow.AddMinutes(1));
-                        result = AsyncRunProgress.Succeeded;
+                        signaled = true;
                     }
                     return Task.CompletedTask;
-                });
-                return result;
-            });
+                }, o => o.CancellationToken = _cancellationToken);
+                return signaled ? new SuccessfulValue() : new UnsuccessfulValue();
+            }, o => o.CancellationToken = _cancellationToken);
+
+            Assert.True(result.Succeeded, "Expected to be successful.");
 
             var status = await mediator.QueryAsync(new GetStatusQuery(TenantId, _correlationId), o => o.CancellationToken = _cancellationToken);
 
@@ -190,14 +196,14 @@ namespace Codebelt.StatusMonitor.Worker
             var mediator = _host.ServiceProvider.GetRequiredService<IMediator>();
 
             var command = new UpdateStatusToFailedCommand(TenantId, _correlationId, new NullReferenceException());
-            var message = command.ToMessage($"urn:status:id:{command.CorrelationId}".ToUri(), "status.failed").Sign(marshaller, o => o.SignatureSecret = TenantSecret);
+            var message = command.ToMessage($"urn:status:id:{command.CorrelationId}".ToUri(), "status.failed").Sign(marshaller, o => o.SignatureSecret = _tenantSecret);
             await queue.SendAsync(message.Yield(), o => o.CancellationToken = _cancellationToken);
 
             TestOutput.WriteLine(JsonFormatter.SerializeObject(message).ToEncodedString());
 
-            await Awaiter.RunAsync(async () =>
+            var result = await Awaiter.RunUntilSucceededOrTimeoutAsync(async () =>
             {
-                var result = AsyncRunProgress.Running;
+                var signaled = false;
                 await bus.SubscribeAsync((@event, _) =>
                 {
                     if (@event.Data is StatusFailedEvent failed)
@@ -206,12 +212,14 @@ namespace Codebelt.StatusMonitor.Worker
                         Assert.Equal(command.FailedReason, failed.FailedReason);
                         Assert.Equal(OperationStatus.Failed.ToString(), failed.Status);
                         Assert.InRange(failed.FailedAt, DateTime.UtcNow.AddMinutes(-1), DateTime.UtcNow.AddMinutes(1));
-                        result = AsyncRunProgress.Succeeded;
+                        signaled = true;
                     }
                     return Task.CompletedTask;
-                });
-                return result;
-            });
+                }, o => o.CancellationToken = _cancellationToken);
+                return signaled ? new SuccessfulValue() : new UnsuccessfulValue();
+            }, o => o.CancellationToken = _cancellationToken);
+
+            Assert.True(result.Succeeded, "Expected to be successful.");
 
             var status = await mediator.QueryAsync(new GetStatusQuery(TenantId, _correlationId), o => o.CancellationToken = _cancellationToken);
 
@@ -238,25 +246,27 @@ namespace Codebelt.StatusMonitor.Worker
             var mediator = _host.ServiceProvider.GetRequiredService<IMediator>();
 
             var command = new DeleteStatusCommand(TenantId, _correlationId);
-            var message = command.ToMessage($"urn:status:id:{command.CorrelationId}".ToUri(), "status.delete").Sign(marshaller, o => o.SignatureSecret = TenantSecret);
+            var message = command.ToMessage($"urn:status:id:{command.CorrelationId}".ToUri(), "status.delete").Sign(marshaller, o => o.SignatureSecret = _tenantSecret);
             await queue.SendAsync(message.Yield(), o => o.CancellationToken = _cancellationToken);
 
             TestOutput.WriteLine(JsonFormatter.SerializeObject(message).ToEncodedString());
 
-            await Awaiter.RunAsync(async () =>
+            var result = await Awaiter.RunUntilSucceededOrTimeoutAsync(async () =>
             {
-                var result = AsyncRunProgress.Running;
+                var signaled = false;
                 await bus.SubscribeAsync((@event, _) =>
                 {
                     if (@event.Data is StatusDeletedEvent deleted)
                     {
                         Assert.Equal(_correlationId, deleted.CorrelationId);
-                        result = AsyncRunProgress.Succeeded;
+                        signaled = true;
                     }
                     return Task.CompletedTask;
-                });
-                return result;
-            });
+                }, o => o.CancellationToken = _cancellationToken);
+                return signaled ? new SuccessfulValue() : new UnsuccessfulValue();
+            }, o => o.CancellationToken = _cancellationToken);
+
+            Assert.True(result.Succeeded, "Expected to be successful.");
 
             var status = await mediator.QueryAsync(new GetStatusQuery(TenantId, _correlationId), o => o.CancellationToken = _cancellationToken);
 
