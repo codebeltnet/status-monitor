@@ -1,23 +1,54 @@
-name: Status Monitor
-
+name: Status Monitor Pipeline
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - .codecov/**
+      - .docfx/**
+      - .github/**
+      - .nuget/**
+      - '**.md'
   pull_request:
     branches: [main]
+    paths-ignore:
+      - .codecov/**
+      - .docfx/**
+      - .github/**
+      - .nuget/**
+      - '**.md'
+  workflow_dispatch:
+    inputs:
+      configuration:
+        type: choice
+        description: The build configuration to use in the deploy stage.
+        required: true
+        default: Release
+        options:
+          - Debug
+          - Release
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    name: 🛠️ Build
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+        framework: [net8.0]
+    outputs:
+      version: ${{ steps.minver-calculate.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: gimlichael/pipelines/.github/actions/install-dotnet@main
-      - uses: gimlichael/pipelines/.github/actions/install-dotnet-tool-minver@main
-      - uses: gimlichael/pipelines/.github/actions/install-dotnet-tool-reportgenerator@main
-      - name: Restore dependencies
-        run: dotnet restore
-      - name: Build
-        run: dotnet build --no-restore
-      - name: Test
-        run: dotnet test --no-build --verbosity normal
+      - name: Checkout
+        uses: codebeltnet/git-checkout@v1
+
+      - name: Install .NET
+        uses: codebeltnet/install-dotnet@v1
+
+      - name: Restore Dependencies
+        uses: codebeltnet/dotnet-restore@v2
+
+      - name: Build for ${{ matrix.framework }} (${{ matrix.configuration }})
+        uses: codebeltnet/dotnet-build@v2
+        with:
+          configuration: ${{ matrix.configuration }}
+          framework: ${{ matrix.framework }}
