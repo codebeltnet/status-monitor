@@ -18,7 +18,7 @@ namespace Codebelt.StatusMonitor.Application
 
         protected override void RegisterDelegates(IRequestReplyRegistry<IQuery> handlers)
         {
-            handlers.RegisterAsync<GetStatusQuery, StatusViewModel>(async query =>
+            handlers.RegisterAsync<GetStatusQuery, StatusViewModel?>(async query =>
             {
                 var operation = (await _statusMonitorDataStore.FindAllAsync(options => options.Filter = operation => operation.Id.Equals(query.CorrelationId, StringComparison.OrdinalIgnoreCase) &&
                                                                                               operation.TenantId == query.TenantId).ConfigureAwait(false)).SingleOrDefault();

@@ -1,4 +1,5 @@
-﻿using Savvyio;
+﻿using Codebelt.SharedKernel;
+using Savvyio;
 
 namespace Codebelt.StatusMonitor.Application.Commands
 {

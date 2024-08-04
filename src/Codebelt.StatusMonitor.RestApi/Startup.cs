@@ -72,9 +72,8 @@ namespace Codebelt.StatusMonitor.RestApi
                 o.OpenApiInfo.Description = "An API tailored to support non-blocking RESTful APIs where actual work is offloaded to one or more worker services. Ideal for Microservices and the likes hereof.";
                 o.Settings.UseAllOfToExtendReferenceSchemas();
                 o.Settings.AddXApiKeySecurity();
+                o.JsonSerializerOptionsFactory = provider => new JsonSerializerOptions(provider.GetRequiredService<IOptions<JsonFormatterOptions>>().Value.Settings);
             });
-
-            services.AddTransient<ISerializerDataContractResolver>(provider => new JsonSerializerDataContractResolver(new JsonSerializerOptions(provider.GetRequiredService<IOptions<JsonFormatterOptions>>().Value.Settings)));
 
             services.AddOpenTelemetry()
                 .ConfigureResource(resource => resource.AddService(nameof(StatusMonitor)))

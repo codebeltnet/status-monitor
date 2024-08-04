@@ -36,38 +36,38 @@ namespace Codebelt.StatusMonitor.Worker
                     .AddMediator<Mediator>();
             });
 
-            services.ConfigureTriple<JsonFormatterOptions>(o => o.Settings.WriteIndented = false);
+            services.AddConfiguredOptions<JsonFormatterOptions>(o => o.Settings.WriteIndented = false);
             services.AddMarshaller<JsonMarshaller>(o => o.Lifetime = ServiceLifetime.Singleton);
 
-            services.ConfigureTriple<AmazonCommandQueueOptions<StatusCommandHandler>>(o =>
+            services.AddConfiguredOptions<AmazonCommandQueueOptions<StatusCommandHandler>>(o =>
             {
                 o.Credentials = new BasicAWSCredentials(Configuration["AWS:IAM:AccessKey"], Configuration["AWS:IAM:SecretKey"]);
-                o.Endpoint = RegionEndpoint.EUWest1;
+                o.Endpoint = RegionEndpoint.GetBySystemName(Configuration["AWS:Region"]);
                 o.SourceQueue = new Uri($"{Configuration["AWS:SourceQueue"]}/{Configuration["AWS:CallerIdentity"]}/status-monitor.fifo");
                 if (Environment.IsLocalDevelopment())
                 {
                     o.ReceiveContext.PollingTimeout = TimeSpan.FromSeconds(1);
                     o.ConfigureClient(client =>
                     {
-                        client.ServiceURL = "http://localhost:4566";
-                        client.AuthenticationRegion = RegionEndpoint.EUWest1.SystemName;
+                        client.ServiceURL = Configuration["AWS:ServiceUrl"];
+                        client.AuthenticationRegion = Configuration["AWS:Region"];
                     });
                 }
             });
             services.Add<AmazonCommandQueue<StatusCommandHandler>>(o => o.Lifetime = ServiceLifetime.Singleton);
 
-            services.ConfigureTriple<AmazonEventBusOptions<StatusEventHandler>>(o =>
+            services.AddConfiguredOptions<AmazonEventBusOptions<StatusEventHandler>>(o =>
             {
                 o.Credentials = new BasicAWSCredentials(Configuration["AWS:IAM:AccessKey"], Configuration["AWS:IAM:SecretKey"]);
-                o.Endpoint = RegionEndpoint.EUWest1;
+                o.Endpoint = RegionEndpoint.GetBySystemName(Configuration["AWS:Region"]);
                 o.SourceQueue = new Uri($"{Configuration["AWS:SourceQueue"]}/{Configuration["AWS:CallerIdentity"]}/status-monitor-events.fifo");
                 if (Environment.IsLocalDevelopment())
                 {
                     o.ReceiveContext.PollingTimeout = TimeSpan.FromSeconds(1);
                     o.ConfigureClient(client =>
                     {
-                        client.ServiceURL = "http://localhost:4566";
-                        client.AuthenticationRegion = RegionEndpoint.EUWest1.SystemName;
+                        client.ServiceURL = Configuration["AWS:ServiceUrl"];
+                        client.AuthenticationRegion = Configuration["AWS:Region"];
                     });
                 }
             });

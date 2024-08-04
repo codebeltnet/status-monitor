@@ -1,4 +1,5 @@
 ﻿using System;
+using Codebelt.SharedKernel;
 
 namespace Codebelt.StatusMonitor.Application.Commands
 {

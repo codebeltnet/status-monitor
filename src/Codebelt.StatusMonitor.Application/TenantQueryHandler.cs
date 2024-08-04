@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Codebelt.SharedKernel.Security;
 using Codebelt.StatusMonitor.Application.Queries;
 using Codebelt.StatusMonitor.Application.Views;
 using Savvyio.Handlers;
@@ -23,9 +24,7 @@ namespace Codebelt.StatusMonitor.Application
                 var tenant = (await _tenantDataStore.FindAllAsync(options =>
                 {
                     options.MaxInclusiveResultCount = 1;
-                    options.Filter = tenant => tenant.AccessKeys.Any(key => key.Secret.Equals(query.ApiKey, StringComparison.OrdinalIgnoreCase) &&
-                                                                            key.Enabled &&
-                                                                            key.Expires > DateTime.UtcNow);
+                    options.Filter = tenant => tenant.AccessKeys.Any(key => key.Secret.Equals(query.ApiKey, StringComparison.OrdinalIgnoreCase) && key.IsValid());
                 }).ConfigureAwait(false)).SingleOrDefault();
                 return tenant != null
                     ? new TenantViewModel() { TenantId = tenant.Id }

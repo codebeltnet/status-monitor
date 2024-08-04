@@ -1,4 +1,5 @@
 ﻿using System;
+using Codebelt.SharedKernel;
 using Codebelt.StatusMonitor.Application.Views;
 using Savvyio.Queries;
 

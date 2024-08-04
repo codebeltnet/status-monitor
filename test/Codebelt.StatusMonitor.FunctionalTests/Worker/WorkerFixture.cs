@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Threading;
+using Amazon;
+using Amazon.Extensions.NETCore.Setup;
+using Amazon.Runtime;
 using Cuemon;
 using Cuemon.Extensions.Hosting;
 using Cuemon.Extensions.Xunit.Hosting;
@@ -20,6 +23,37 @@ namespace Codebelt.StatusMonitor.Worker
             Host.CreateDefaultBuilder()
                 .UseEnvironment("LocalDevelopment")
                 .RemoveConfigurationSource((_, source) => source is EnvironmentVariablesConfigurationSource)
+                .ConfigureAppConfiguration((context, builder) =>
+                {
+                    builder.AddSystemsManager(o =>
+                    {
+                        var config = builder.Build();
+                        o.Path = $"/{context.HostingEnvironment.EnvironmentName}/Codebelt.StatusMonitor.Worker/";
+                        if (context.HostingEnvironment.IsLocalDevelopment())
+                        {
+                            o.AwsOptions = new AWSOptions()
+                            {
+                                DefaultClientConfig =
+                                {
+                                    ServiceURL = config["AWS:ServiceUrl"],
+                                    AuthenticationRegion = config["AWS:Region"]
+                                },
+                                Credentials = new BasicAWSCredentials(config["AWS:IAM:AccessKey"], config["AWS:IAM:SecretKey"])
+                            };
+                        }
+                        else
+                        {
+                            o.AwsOptions = new AWSOptions()
+                            {
+                                DefaultClientConfig =
+                                {
+                                    RegionEndpoint = RegionEndpoint.GetBySystemName(config["AWS:Region"])
+                                },
+                                Credentials = new BasicAWSCredentials(config["AWS:IAM:AccessKey"], config["AWS:IAM:SecretKey"])
+                            };
+                        }
+                    });
+                })
                 .ConfigureServices((context, _) =>
                 {
                     Configuration = context.Configuration;

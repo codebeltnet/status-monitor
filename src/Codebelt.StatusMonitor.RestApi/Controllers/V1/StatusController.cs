@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Codebelt.SharedKernel;
 using Codebelt.StatusMonitor.Application.Commands;
 using Codebelt.StatusMonitor.Application.Inputs;
 using Codebelt.StatusMonitor.Application.Queries;

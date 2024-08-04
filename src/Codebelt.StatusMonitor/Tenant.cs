@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Codebelt.SharedKernel.Security;
 using Savvyio.Domain;
 
 namespace Codebelt.StatusMonitor

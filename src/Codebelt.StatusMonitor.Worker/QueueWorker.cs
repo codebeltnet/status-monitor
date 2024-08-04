@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Codebelt.Bootstrapper;
 using Codebelt.Shared;
+using Codebelt.SharedKernel.Security;
 using Codebelt.StatusMonitor.Application;
 using Codebelt.StatusMonitor.Application.Commands;
 using Cuemon.Extensions;
@@ -70,7 +71,7 @@ namespace Codebelt.StatusMonitor.Worker
                                 return;
                             }
 
-                            var secrets = tenant.AccessKeys.Where(key => key.Enabled && key.Expires > DateTime.UtcNow).Select(key => key.Secret).ToList();
+                            var secrets = tenant.AccessKeys.Where(key => key.IsValid()).Select(key => key.Secret).ToList();
                             foreach (var secret in secrets)
                             {
                                 try

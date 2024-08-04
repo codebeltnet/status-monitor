@@ -1,5 +1,6 @@
 ﻿using Savvyio.Domain;
 using System;
+using Codebelt.SharedKernel;
 using Cuemon;
 
 namespace Codebelt.StatusMonitor

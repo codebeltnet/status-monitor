@@ -6,12 +6,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Savvyio.Extensions.DependencyInjection" Version="2.1.0" />
-    <PackageReference Include="Savvyio.Commands" Version="2.1.0" />
-    <PackageReference Include="Savvyio.Extensions.Dispatchers" Version="2.1.0" />
-    <PackageReference Include="Savvyio.EventDriven" Version="2.1.0" />
-    <PackageReference Include="Savvyio.Extensions.SimpleQueueService" Version="2.1.0" />
-    <PackageReference Include="Savvyio.Queries" Version="2.1.0" />
+    <PackageReference Include="Savvyio.Extensions.DependencyInjection" Version="3.0.0-preview.2" />
+    <PackageReference Include="Savvyio.Commands" Version="3.0.0-preview.2" />
+    <PackageReference Include="Savvyio.Commands.Messaging" Version="3.0.0-preview.2" />
+    <PackageReference Include="Savvyio.Extensions.Dispatchers" Version="3.0.0-preview.2" />
+    <PackageReference Include="Savvyio.EventDriven" Version="3.0.0-preview.2" />
+    <PackageReference Include="Savvyio.EventDriven.Messaging" Version="3.0.0-preview.2" />
+    <PackageReference Include="Savvyio.Extensions.SimpleQueueService" Version="3.0.0-preview.2" />
+    <PackageReference Include="Savvyio.Queries" Version="3.0.0-preview.2" />
   </ItemGroup>
 
   <ItemGroup>

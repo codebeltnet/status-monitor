@@ -31,8 +31,9 @@ namespace Codebelt.StatusMonitor.RestApi.V1
 
         public StatusControllerTest(AspNetCoreHostFixture fixture, ITestOutputHelper output) : base(fixture, output)
         {
-            _client = Host.GetTestClient();
+            _client = fixture.Host.GetTestClient();
             _client.DefaultRequestHeaders.Add(HttpHeaderNames.XApiKey, "705424692fda4b86b8726d64b22cb1bf");
+            _client.Timeout = TimeSpan.FromSeconds(15);
         }
 
         [Fact, Priority(0)]
