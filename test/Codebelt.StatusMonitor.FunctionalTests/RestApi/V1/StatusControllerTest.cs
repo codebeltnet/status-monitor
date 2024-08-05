@@ -7,7 +7,6 @@ using Codebelt.StatusMonitor.Application.Inputs;
 using Codebelt.StatusMonitor.Application.Views;
 using Cuemon.Extensions.IO;
 using Cuemon.Extensions.Text.Json.Formatters;
-using Cuemon.Extensions.Xunit;
 using Cuemon.Extensions.Xunit.Hosting;
 using Cuemon.Extensions.Xunit.Hosting.AspNetCore;
 using Cuemon.Net.Http;
@@ -34,6 +33,7 @@ namespace Codebelt.StatusMonitor.RestApi.V1
             _client = fixture.Host.GetTestClient();
             _client.DefaultRequestHeaders.Add(HttpHeaderNames.XApiKey, "705424692fda4b86b8726d64b22cb1bf");
             _client.Timeout = TimeSpan.FromSeconds(15);
+            fixture.ConfigureServicesCallback = services => services.AddXunitTestLogging(output, LogLevel.Information);
         }
 
         [Fact, Priority(0)]
@@ -169,7 +169,6 @@ namespace Codebelt.StatusMonitor.RestApi.V1
         public override void ConfigureServices(IServiceCollection services)
         {
             _startup.ConfigureServices(services);
-            services.AddXunitTestLogging(TestOutput, LogLevel.Information);
         }
 
         public override void ConfigureApplication(IApplicationBuilder app)
